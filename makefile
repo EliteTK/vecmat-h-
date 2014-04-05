@@ -2,7 +2,8 @@ CC = gcc
 
 CFLAGS = -c -O2 -Wall -Werror -fPIC -I $(INCLL)
 
-SOOUT = libvecmat.so
+BASENAME = vecmat
+SOOUT = lib$(BASENAME).so
 
 SOVER = 
 SONAME = $(SOOUT)$(SOVER)
@@ -13,36 +14,46 @@ DESTLIB = $(DESTDIR)/lib
 
 BUILDDIR = .
 INCL = $(BUILDDIR)/include
-INCLL = $(INCL)/vecmat
+INCLL = $(INCL)/$(BASENAME)
 SRC = $(BUILDDIR)/src
 BUILD = $(BUILDDIR)/build
 LIB = $(BUILDDIR)/lib
 
-SOURCES = vec.c
-OBJECTS = $(addprefix $(BUILD), $(SOURCES:.c=.o))
+SOURCES = vec.c vec2.c vec4.c mat.c
+INCLUDES = $(addprefix vecmat/, $(SOURCES:.c=.h)) $(BASENAME).h
+OBJECTS = $(addprefix $(BUILD)/, $(SOURCES:.c=.o))
 
-build : $(LIB)/$(SONAME)
+make : $(LIB)/$(SONAME)
 	
 
 $(LIB)/$(SONAME) : $(OBJECTS)
-	mkdir -p $(LIB)
 	$(CC) -shared -o $@ $^
 
-$(OBJECTS)/%.o : %.c %.h
-	mkdir -p $(BUILD)
+$(BUILD)/%.o : $(SRC)/%.c $(INCLL)/%.h 
 	$(CC) $(CFLAGS) -o $@ $<
 
-install : $(DESTDIR)/$(SONAME)
+install : $(DESTLIB)/$(SONAME) $(addprefix $(DESTINCL)/, $(INCLUDES))
 	
 
-$(INSLIB)/$(SONAME) : $(LIB)/$(SONAME)
-	cp $(LIB)/$(SONAME) $(INSLIB)/$(SONAME)
-	cp -r $(INCL)/* $(INSINCL)/
+$(DESTLIB)/$(SONAME) : $(LIB)/$(SONAME) $(DESTLIB)
+	cp $< $@
+
+$(DESTLIB) :
+	mkdir -p $@
+
+$(DESTINCL)/%.h : $(INCL)/%.h $(DESTINCL)/$(BASENAME)
+	cp $< $@
+
+$(DESTINCL)/$(BASENAME) :
+	mkdir -p $@
 
 uninstall :
-	rm -f $(INSLIB)/$(SONAME) $(INSINCL)/vecmat.h $(INSINCL)/vecmat/*
-	rm -fd $(INSINCL)/vecmat/
+	rm -f $(DESTLIB)/$(SONAME) $(DESTINCL)/$(BASENAME).h $(DESTINCL)/$(BASENAME)/*
+	rm -fd $(DESTINCL)/$(BASENAME)/
 
 clean :
 	rm -f $(BUILD)/* $(LIB)/*
 	rm -fd $(BUILD) $(LIB)
+
+prepare :
+	mkdir -p $(LIB) $(BUILD)

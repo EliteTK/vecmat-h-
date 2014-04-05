@@ -1,17 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include "vec.h"
 
 #define pow2(A) ((A) * (A))
 
-###################
-# Utility functions
-###################
-
-float *vec_toarr(Vec *v)
-{
-    float array[] = {v->p1, v->p2, v->p3};
-    return &array;
-}
+///////////////////////
+// Utility functions //
+///////////////////////
 
 Vec *vec_alloc()
 {
@@ -23,68 +19,87 @@ void vec_free(Vec *v)
     free(v);
 }
 
-Vec *vec_new(float p1, float p2, float p3)
+Vec *vec_new(const float x, const float y, const float z)
 {
     Vec *v = vec_alloc();
-    v->p1 = p1;
-    v->p2 = p2;
-    v->p3 = p3;
+    v->x = x;
+    v->y = y;
+    v->z = z;
     return v;
 }
 
-void vec_set(Vec *v, float p1, float p2, float p3)
+void vec_set(Vec *v, const float x, const float y, const float z)
 {
-    v->p1 = p1;
-    v->p2 = p2;
-    v->p3 = p3;
+    v->x = x;
+    v->y = y;
+    v->z = z;
 }
 
-void vec_setv(Vec *v1, Vec *v2)
+void vec_setv(Vec *v1, const Vec *v2)
 {
-    v1->p1 = v2->p1;
-    v1->p2 = v2->p2;
-    v1->p3 = v2->p3;
+    v1->x = v2->x;
+    v1->y = v2->y;
+    v1->z = v2->z;
+}
+
+void vec_seta(Vec *v, const float *array)
+{
+    v->x = array[0];
+    v->y = array[1];
+    v->z = array[2];
 }
 
 void vec_zero(Vec *v)
 {
-    v->p1 = 0;
-    v->p2 = 0;
-    v->p3 = 0;
+    v->x = 0;
+    v->y = 0;
+    v->z = 0;
 }
 
-########################
-# Mathematical functions
-########################
-
-float vec_lengths(Vec *v)
+float *vec_toarr(const Vec *v)
 {
-    return pow2(v->p1) + pow2(v->p2) + pow2(v->p3);
+    float *array = malloc(3 * sizeof(float));
+    array[0] = v->x;
+    array[1] = v->y;
+    array[2] = v->z;
+    return array;
 }
 
-float vec_length(Vec *v)
+void vec_tostring(char *string, const Vec *v)
+{
+    sprintf(string, "(%f, %f, %f)", v->x, v->y, v->z);
+}
+
+////////////////////////////
+// Mathematical functions //
+////////////////////////////
+
+float vec_lengths(const Vec *v)
+{
+    return pow2(v->x) + pow2(v->y) + pow2(v->z);
+}
+
+float vec_length(const Vec *v)
 {
     return sqrt(vec_lengths(v));
 }
 
-float vec_dot(Vec *v1, Vec *v2)
+float vec_dot(const Vec *v1, const Vec *v2)
 {
-    return  v1->p1 * v2->p1
-          + v1->p2 * v2->p2
-          + v1->p3 * v2->p3;
+    return  v1->x * v2->x
+          + v1->y * v2->y
+          + v1->z * v2->z;
 }
 
-Vec *vec_cross(Vec *v1, Vec *v2)
+Vec *vec_cross(const Vec *v1, const Vec *v2)
 {
-    return vec_new( v1->p2 * v2->p3 - v1->p3 * v2->p2,
-                    v1->p3 * v2->p1 - v1->p1 * v2->p3,
-                    v1->p1 * v2->p2 - v1->p2 * v2->p1);
+    return vec_new( v1->y * v2->z - v1->z * v2->y,
+                    v1->z * v2->x - v1->x * v2->z,
+                    v1->x * v2->y - v1->y * v2->x);
 }
 
-Vec *vec_normalize(Vec *v)
+Vec *vec_normalize(const Vec *v)
 {
-    float ilength = 1/vec_length(v);
-    return vec_new(v->p1 * ilength, v->p2 * ilength, v->p3 * ilength);
+    const float ilength = 1/vec_length(v);
+    return vec_new(v->x * ilength, v->y * ilength, v->z * ilength);
 }
-
-
