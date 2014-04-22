@@ -1,6 +1,7 @@
 CC = gcc
 
 CFLAGS = -c -O2 -Wall -Werror -fPIC -I $(INCLL)
+LDFLAGS = -lm
 
 BASENAME = vecmat
 SOOUT = lib$(BASENAME).so
@@ -19,7 +20,7 @@ SRC = $(BUILDDIR)/src
 BUILD = $(BUILDDIR)/build
 LIB = $(BUILDDIR)/lib
 
-SOURCES = vec.c vec2.c vec4.c mat.c
+SOURCES = vec.c
 INCLUDES = $(addprefix vecmat/, $(SOURCES:.c=.h)) $(BASENAME).h
 OBJECTS = $(addprefix $(BUILD)/, $(SOURCES:.c=.o))
 
@@ -27,7 +28,7 @@ make : $(LIB)/$(SONAME)
 	
 
 $(LIB)/$(SONAME) : $(OBJECTS)
-	$(CC) -shared -o $@ $^
+	$(CC) $(LDFLAGS) -shared -o $@ $^
 
 $(BUILD)/%.o : $(SRC)/%.c $(INCLL)/%.h 
 	$(CC) $(CFLAGS) -o $@ $<
@@ -35,11 +36,8 @@ $(BUILD)/%.o : $(SRC)/%.c $(INCLL)/%.h
 install : $(DESTLIB)/$(SONAME) $(addprefix $(DESTINCL)/, $(INCLUDES))
 	
 
-$(DESTLIB)/$(SONAME) : $(LIB)/$(SONAME) $(DESTLIB)
+$(DESTLIB)/$(SONAME) : $(LIB)/$(SONAME)
 	cp $< $@
-
-$(DESTLIB) :
-	mkdir -p $@
 
 $(DESTINCL)/%.h : $(INCL)/%.h $(DESTINCL)/$(BASENAME)
 	cp $< $@
@@ -55,5 +53,5 @@ clean :
 	rm -f $(BUILD)/* $(LIB)/*
 	rm -fd $(BUILD) $(LIB)
 
-prepare :
+git-prepare :
 	mkdir -p $(LIB) $(BUILD)
