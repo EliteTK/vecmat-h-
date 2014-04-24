@@ -3,8 +3,6 @@
 #include <math.h>
 #include "vec.h"
 
-#define pow2(A) ((A) * (A))
-
 ///////////////////////
 // Utility functions //
 ///////////////////////
@@ -56,13 +54,11 @@ void vec_zero(Vec *v)
     v->z = 0;
 }
 
-float *vec_toarr(const Vec *v)
+float *vec_toarr(float *array, const Vec *v)
 {
-    float *array = malloc(3 * sizeof(float));
     array[0] = v->x;
     array[1] = v->y;
     array[2] = v->z;
-    return array;
 }
 
 void vec_tostring(char *string, const Vec *v)
@@ -76,7 +72,7 @@ void vec_tostring(char *string, const Vec *v)
 
 float vec_lengths(const Vec *v)
 {
-    return pow2(v->x) + pow2(v->y) + pow2(v->z);
+    return powf(v->x, 2) + powf(v->y, 2) + powf(v->z, 2);
 }
 
 float vec_length(const Vec *v)
@@ -98,8 +94,11 @@ Vec *vec_cross(const Vec *v1, const Vec *v2)
                     v1->x * v2->y - v1->y * v2->x);
 }
 
-Vec *vec_normalize(const Vec *v)
+void vec_normalize(Vec *v)
 {
     const float ilength = 1/vec_length(v);
-    return vec_new(v->x * ilength, v->y * ilength, v->z * ilength);
+    v->x *= ilength;
+    v->y *= ilength;
+    v->z *= ilength;
+}
 }
